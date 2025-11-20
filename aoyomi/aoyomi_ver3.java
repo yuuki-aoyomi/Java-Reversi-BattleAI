@@ -15,21 +15,21 @@ public class MyAI extends AI {
 	protected final Random random; // 乱数生成器
     protected Location result; // 計算結果
     private static final int[][] WEIGHT = {
-    	    {120, -20,  20,   5,   5,  20, -20, 120},
-    	    {-20, -40,  -5,  -5,  -5,  -5, -40, -20},
+    	    {1000, -50,  20,   15,   15,  20, -50, 1000},
+    	    {-50, -10000,  -5,  -5,  -5,  -5, -10000, -50},
     	    { 20,  -5,  15,   3,   3,  15,  -5,  20},
-    	    {  5,  -5,   3,   3,   3,   3,  -5,   5},
-    	    {  5,  -5,   3,   3,   3,   3,  -5,   5},
+    	    {  15,  -5,   3,   3,   3,   3,  -5,   15},
+    	    {  15,  -5,   3,   3,   3,   3,  -5,   15},
     	    { 20,  -5,  15,   3,   3,  15,  -5,  20},
-    	    {-20, -40,  -5,  -5,  -5,  -5, -40, -20},
-    	    {120, -20,  20,   5,   5,  20, -20, 120},
+    	    {-50, -10000,  -5,  -5,  -5,  -5, -10000, -50},
+    	    {1000, -50,  20,   15,   15,  20, -50, 1000},
     	}; //重み
     
     // 色colorのプレイヤーのリバーシAIを生成する．
     // timeLimitedFlagがtrueの場合，時間制限が設定されている．
     public MyAI(int color, boolean timeLimitedFlag) {
         super(color, timeLimitedFlag);
-        this.depthLimit = 10;
+        this.depthLimit = 9;
         random = new Random();
     }
 
@@ -38,37 +38,42 @@ public class MyAI extends AI {
         int myColor = color;
         int enemyColor = Board.flip(color);
 
-        // Mobility（合法手の多さ）評価
-        int myMobility = board.enumerateLegalLocations().size();
+        // 手の多さ評価
+        int myMoves = board.enumerateLegalLocations().size();
 
-        // passして相手番にして合法手数カウント
+        // passして相手番にして手数カウント
         board.pass();
-        int enemyMobility = board.enumerateLegalLocations().size();
+        int enemyMoves = board.enumerateLegalLocations().size();
         board.undo();
+        
+        int sumOfStone = board.getCount(myColor) + board.getCount(enemyColor);
 
-        int mobilityScore = 5 * (myMobility - enemyMobility); 
-        // ← 重みは調整可能
-
-
-        // 位置評価：Positional Weight
-        // get(x,y) があるので本格的な位置評価テーブルが使える！
-        int positionalScore = 0;
+        int moveScore = myMoves - enemyMoves;
+        if(sumOfStone <= 20) {
+        	moveScore *= 15; 
+        }else if(sumOfStone <= 48) {
+        	moveScore *= 10; 
+        }else if(sumOfStone <= 56) {
+        	moveScore *= 5; 
+        }else {
+        	moveScore = 0; 
+        }
+        // 位置評価
+        int posScore = 0;
 
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 int cell = board.get(x, y);
                 if (cell == myColor) {
-                    positionalScore += WEIGHT[y][x];
+                    posScore += WEIGHT[y][x];
                 } else if (cell == enemyColor) {
-                    positionalScore -= WEIGHT[y][x];
+                    posScore -= WEIGHT[y][x];
                 }
             }
         }
 
-        // -----------------------------
-        // ③ 合成して返す
-        // -----------------------------
-        return positionalScore + mobilityScore;
+        // 合成して返す
+        return posScore + moveScore;
     }
     
     // 葉の局面boardを評価する．

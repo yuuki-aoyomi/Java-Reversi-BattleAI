@@ -1,5 +1,5 @@
 // BEGIN
-package j2.review02.s24k0120;
+package j2.review02.s24kXXXX;
 
 import java.util.ArrayList;
 import java.util.Random;
