@@ -1,3 +1,4 @@
+// 最強AIの簡略版。すごくつよい
 package j2.review02;
 
 import java.util.ArrayList;
