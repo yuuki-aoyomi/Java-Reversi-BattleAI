@@ -1,4 +1,4 @@
-package j2.review02.s24kXXXX;
+package j2.review02;
 
 import j2.review02.Board;
 import j2.review02.Location;
